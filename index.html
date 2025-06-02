@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Website Pengumpulan Tugas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #0066cc;
+      color: white;
+      padding: 25px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    section h2 {
+      margin-bottom: 15px;
+      color: #0066cc;
+    }
+
+    .card-profil {
+      display: flex;
+      align-items: center;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      gap: 20px;
+    }
+
+    .foto-profil {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #0066cc;
+    }
+
+    .info-profil h3 {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .info-profil a {
+      text-decoration: none;
+      color: #0066cc;
+      font-weight: bold;
+    }
+
+    form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    form label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    form input[type="text"],
+    form textarea,
+    form input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    form button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #daftar-tugas ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    #daftar-tugas li {
+      background: white;
+      padding: 15px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .hapus-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: crimson;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .file-preview {
+      margin-top: 8px;
+      font-size: 0.9em;
+    }
+
+    .file-preview img {
+      max-width: 100px;
+      margin-top: 5px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Website Pengumpulan Tugas Kuliah</h1>
+  </header>
+
+  <section id="profil">
+    <h2>Profil</h2>
+    <div class="card-profil">
+      <img src="img/foto.jpeg" alt="Foto Mahasiswa" class="foto-profil" />
+      <div class="info-profil">
+        <h3>Ridho Khusnun Nur Rohim</h3>
+        <a href="https://instagram.com/ridho.khusnun__" target="_blank">Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="form-tugas">
+    <h2>Kumpulkan Tugas</h2>
+    <form id="tugasForm">
+      <label for="judul">Judul Tugas:</label>
+      <input type="text" id="judul" name="judul" required />
+
+      <label for="deskripsi">Deskripsi:</label>
+      <textarea id="deskripsi" name="deskripsi" rows="4" required></textarea>
+
+      <label for="file">Upload File:</label>
+      <input type="file" id="file" name="file" required />
+
+      <button type="submit">Kumpulkan</button>
+    </form>
+  </section>
+
+  <section id="daftar-tugas">
+    <h2>Daftar Tugas Terkumpul</h2>
+    <ul id="listTugas">
+      <!-- Tugas terkumpul akan muncul di sini -->
+    </ul>
+  </section>
+
+  <script>
+    const form = document.getElementById('tugasForm');
+    const listTugas = document.getElementById('listTugas');
+
+    let tugasList = JSON.parse(localStorage.getItem('tugasList')) || [];
+
+    function simpanKeStorage() {
+      localStorage.setItem('tugasList', JSON.stringify(tugasList));
+    }
+
+    function renderTugas() {
+      listTugas.innerHTML = "";
+      tugasList.forEach((tugas, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <strong>${tugas.judul}</strong><br>
+          <em>${tugas.deskripsi}</em><br>
+          <div class="file-preview">
+            📎 ${tugas.filename}
+            ${tugas.filePreview ? `<br><img src="${tugas.filePreview}" alt="preview">` : ''}
+          </div>
+          <button class="hapus-btn" onclick="hapusTugas(${index})">Hapus</button>
+        `;
+        listTugas.appendChild(li);
+      });
+    }
+
+    function hapusTugas(index) {
+      tugasList.splice(index, 1);
+      simpanKeStorage();
+      renderTugas();
+    }
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const judul = document.getElementById('judul').value;
+      const deskripsi = document.getElementById('deskripsi').value;
+      const file = document.getElementById('file').files[0];
+
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const tugasBaru = {
+          judul,
+          deskripsi,
+          filename: file.name,
+          filePreview: file.type.startsWith('image/') ? e.target.result : null
+        };
+        tugasList.push(tugasBaru);
+        simpanKeStorage();
+        renderTugas();
+        form.reset();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Render tugas saat halaman dimuat
+    renderTugas();
+  </script>
+</body>
+</html>
